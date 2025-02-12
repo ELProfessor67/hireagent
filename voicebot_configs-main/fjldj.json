@@ -1,0 +1,309 @@
+// getAllAssistants   
+
+//Done. Route is -/api/configs/findAllAssistants
+
+//  https://api.npoint.io/76adc632930674d0ae00
+
+
+// Create Assistants - web, twilllio, nonage
+//Done. Route is -/api/configs/createAssistant
+
+//  https://api.npoint.io/81798e3c202d98eb3bd0
+{
+  "endCallPhrases": [
+      "goodbye",
+      "talk to you soon"
+  ],
+  "endCallMessage": "Thank you for contacting Mary's Dental. Have a great day!",
+  "voicemailMessage": "You've reached Mary's Dental voicemail. Please leave a message after the beep, and we'll get back to you as soon as possible.",
+  "firstMessage": "Hello, this is Mary from Mary's Dental. How can I assist you today?",
+  "transcriber": {
+      "model": "nova-2",
+      "provider": "deepgram",
+      "language": "en"
+  },
+  "name": "Testbot01",
+  "serverMessages": [
+      "end-of-call-report",
+      "status-update",
+      "hang",
+      "function-call"
+  ],
+  "clientMessages": [
+      "transcript",
+      "hang",
+      "function-call",
+      "speech-update",
+      "metadata",
+      "conversation-update"
+  ],
+  "recordingEnabled": true,
+  "voice": {
+      "voiceId": "sarah",
+      "provider": "11labs",
+      "stability": 0.5,
+      "similarityBoost": 0.75
+  },
+  "model": {
+      "maxTokens": 250,
+      "temperature": 1,
+      "provider": "openai",
+      "model": "gpt-3.5-turbo",
+      "messages": [
+          {
+              "content": "You are a voice assistant for Mary's Dental, a dental office located at 123 North Face Place, Anaheim, California. The hours are 8 AM to 5PM daily, but they are closed on Sundays.\n\nMary's dental provides dental services to the local Anaheim community. The practicing dentist is Dr. Mary Smith.\n\nYou are tasked with answering questions about the business, and booking appointments. If they wish to book an appointment, your goal is to gather necessary information from callers in a friendly and efficient manner like follows:\n\n1. Ask for their full name.\n2. Ask for the purpose of their appointment.\n3. Request their preferred date and time for the appointment.\n4. Confirm all details with the caller, including the date and time of the appointment.\n\n- Be sure to be kind of funny and witty!\n- Keep all your responses short and simple. Use casual language, phrases like \"Umm...\", \"Well...\", and \"I mean\" are preferred.\n- This is a voice conversation, so keep your responses short, like in a real conversation. Don't ramble for too long.",
+              "role": "system"
+          }
+      ]
+  },
+  "parentId": "a3ddaf3f-420d-45ce-87a6-5d2c92e3079b"
+}
+// clone assistant
+
+// NOT DONE.  ...............DONE
+//  https://api.npoint.io/ff46dfdd9ca4d5785c4e
+{
+  "name": "Testbot01 (Copy)",
+  "voice": {
+      "voiceId": "sarah",
+      "provider": "11labs",
+      "stability": 0.5,
+      "similarityBoost": 0.75
+  },
+  "model": {
+      "model": "gpt-3.5-turbo",
+      "messages": [
+          {
+              "role": "system",
+              "content": "You are a voice assistant for Mary's Dental, a dental office located at 123 North Face Place, Anaheim, California. The hours are 8 AM to 5PM daily, but they are closed on Sundays.\n\nMary's dental provides dental services to the local Anaheim community. The practicing dentist is Dr. Mary Smith.\n\nYou are tasked with answering questions about the business, and booking appointments. If they wish to book an appointment, your goal is to gather necessary information from callers in a friendly and efficient manner like follows:\n\n1. Ask for their full name.\n2. Ask for the purpose of their appointment.\n3. Request their preferred date and time for the appointment.\n4. Confirm all details with the caller, including the date and time of the appointment.\n\n- Be sure to be kind of funny and witty!\n- Keep all your responses short and simple. Use casual language, phrases like \"Umm...\", \"Well...\", and \"I mean\" are preferred.\n- This is a voice conversation, so keep your responses short, like in a real conversation. Don't ramble for too long."
+          }
+      ],
+      "provider": "openai",
+      "maxTokens": 250,
+      "temperature": 1
+  },
+  "recordingEnabled": true,
+  "firstMessage": "Hello, this is Mary from Mary's Dental. How can I assist you today?",
+  "voicemailMessage": "You've reached Mary's Dental voicemail. Please leave a message after the beep, and we'll get back to you as soon as possible.",
+  "endCallMessage": "Thank you for contacting Mary's Dental. Have a great day!",
+  "transcriber": {
+      "model": "nova-2-drivethru",
+      "language": "en",
+      "provider": "deepgram"
+  },
+  "clientMessages": [
+      "transcript",
+      "hang",
+      "function-call",
+      "speech-update",
+      "metadata",
+      "conversation-update"
+  ],
+  "serverMessages": [
+      "end-of-call-report",
+      "status-update",
+      "hang",
+      "function-call"
+  ],
+  "endCallPhrases": [
+      "goodbye",
+      "talk to you soon"
+  ]
+}
+// Demo assistant
+// socket conn 12
+{
+  "name": "Testbot01",
+  "voice": {
+      "voiceId": "sarah",
+      "provider": "11labs",
+      "stability": 0.5,
+      "similarityBoost": 0.75
+  },
+  "model": {
+      "model": "gpt-3.5-turbo",
+      "messages": [
+          {
+              "role": "system",
+              "content": "You are a voice assistant for Mary's Dental, a dental office located at 123 North Face Place, Anaheim, California. The hours are 8 AM to 5PM daily, but they are closed on Sundays.\n\nMary's dental provides dental services to the local Anaheim community. The practicing dentist is Dr. Mary Smith.\n\nYou are tasked with answering questions about the business, and booking appointments. If they wish to book an appointment, your goal is to gather necessary information from callers in a friendly and efficient manner like follows:\n\n1. Ask for their full name.\n2. Ask for the purpose of their appointment.\n3. Request their preferred date and time for the appointment.\n4. Confirm all details with the caller, including the date and time of the appointment.\n\n- Be sure to be kind of funny and witty!\n- Keep all your responses short and simple. Use casual language, phrases like \"Umm...\", \"Well...\", and \"I mean\" are preferred.\n- This is a voice conversation, so keep your responses short, like in a real conversation. Don't ramble for too long."
+          }
+      ],
+      "provider": "openai",
+      "maxTokens": 250,
+      "temperature": 1
+  },
+  "recordingEnabled": true,
+  "firstMessage": "Hello, this is Mary from Mary's Dental. How can I assist you today?",
+  "voicemailMessage": "You've reached Mary's Dental voicemail. Please leave a message after the beep, and we'll get back to you as soon as possible.",
+  "endCallMessage": "Thank you for contacting Mary's Dental. Have a great day!",
+  "transcriber": {
+      "model": "nova-2",
+      "language": "en",
+      "provider": "deepgram"
+  },
+  "clientMessages": [
+      "transcript",
+      "hang",
+      "function-call",
+      "speech-update",
+      "metadata",
+      "conversation-update"
+  ],
+  "serverMessages": [
+      "end-of-call-report",
+      "status-update",
+      "hang",
+      "function-call"
+  ],
+  "parentId": "a3ddaf3f-420d-45ce-87a6-5d2c92e3079b",
+  "endCallPhrases": [
+      "goodbye",
+      "talk to you soon"
+  ]
+}
+// getUserDetails
+//NOT DONE.............DONE
+// https://api.npoint.io/167c8add5ecea9a98395
+{
+  "id": "449d760f-aefc-46cb-838e-5658113bedbd",
+  "aud": "authenticated",
+  "role": "authenticated",
+  "email": "abcd@gmail.com",
+  "email_confirmed_at": "2024-05-22T02:59:01.50824Z",
+  "phone": "",
+  "confirmed_at": "2024-05-22T02:59:01.50824Z",
+  "last_sign_in_at": "2024-05-22T02:59:01.50927Z",
+  "app_metadata": {
+      "provider": "google",
+      "providers": [
+          "google"
+      ]
+  },
+  "user_metadata": {
+      "avatar_url": "https://lh3.googleusercontent.com/a/ACg8ocJgjUQNzEM0i-yT9LMp1Qo7My7g0-NbgVb-Zj0efcYDrpDuuPwK=s96-c",
+      "email": "abcd@gmail.com",
+      "email_verified": true,
+      "full_name": "lorem ipsum",
+      "iss": "https://accounts.google.com",
+      "name": "lorem ipsum",
+      "phone_verified": false,
+      "picture": "https://lh3.googleusercontent.com/a/ACg8ocJgjUQNzEM0i-yT9LMp1Qo7My7g0-NbgVb-Zj0efcYDrpDuuPwK=s96-c",
+      "provider_id": "111167913594812626165",
+      "sub": "111167913594812626165"
+  },
+  "identities": [
+      {
+          "identity_id": "54ce4a3d-40da-4e4c-89f4-982e25c62718",
+          "id": "111167913594812626165",
+          "user_id": "449d760f-aefc-46cb-838e-5658113bedbd",
+          "identity_data": {
+              "avatar_url": "https://lh3.googleusercontent.com/a/ACg8ocJgjUQNzEM0i-yT9LMp1Qo7My7g0-NbgVb-Zj0efcYDrpDuuPwK=s96-c",
+              "email": "abcd@gmail.com",
+              "email_verified": true,
+              "full_name": "lorem ipsum",
+              "iss": "https://accounts.google.com",
+              "name": "lorem ipsum",
+              "phone_verified": false,
+              "picture": "https://lh3.googleusercontent.com/a/ACg8ocJgjUQNzEM0i-yT9LMp1Qo7My7g0-NbgVb-Zj0efcYDrpDuuPwK=s96-c",
+              "provider_id": "111167913594812626165",
+              "sub": "111167913594812626165"
+          },
+          "provider": "google",
+          "last_sign_in_at": "2024-05-22T02:59:01.505054Z",
+          "created_at": "2024-05-22T02:59:01.505102Z",
+          "updated_at": "2024-05-22T02:59:01.505102Z",
+          "email": "abcd@gmail.com"
+      }
+  ],
+  "created_at": "2024-05-22T02:59:01.49955Z",
+  "updated_at": "2024-05-22T02:59:01.514132Z",
+  "is_anonymous": false
+}
+// transcribe
+// NOT DONE ........DONE
+// https://api.npoint.io/2eaec3ab9022abc32dd6
+{
+  "id": "a3ddaf3f-420d-45ce-87a6-5d2c92e3079b",
+  "orgId": "0c8012fa-d039-4107-a20d-7b59e2a43665",
+  "name": "Testbot01",
+  "voice": {
+      "voiceId": "sarah",
+      "provider": "11labs",
+      "stability": 0.5,
+      "similarityBoost": 0.75
+  },
+  "createdAt": "2024-05-22T02:59:24.186Z",
+  "updatedAt": "2024-05-22T03:25:05.181Z",
+  "model": {
+      "model": "gpt-3.5-turbo",
+      "messages": [
+          {
+              "role": "system",
+              "content": "You are a voice assistant for Mary's Dental, a dental office located at 123 North Face Place, Anaheim, California. The hours are 8 AM to 5PM daily, but they are closed on Sundays.\n\nMary's dental provides dental services to the local Anaheim community. The practicing dentist is Dr. Mary Smith.\n\nYou are tasked with answering questions about the business, and booking appointments. If they wish to book an appointment, your goal is to gather necessary information from callers in a friendly and efficient manner like follows:\n\n1. Ask for their full name.\n2. Ask for the purpose of their appointment.\n3. Request their preferred date and time for the appointment.\n4. Confirm all details with the caller, including the date and time of the appointment.\n\n- Be sure to be kind of funny and witty!\n- Keep all your responses short and simple. Use casual language, phrases like \"Umm...\", \"Well...\", and \"I mean\" are preferred.\n- This is a voice conversation, so keep your responses short, like in a real conversation. Don't ramble for too long."
+          }
+      ],
+      "provider": "openai",
+      "maxTokens": 250,
+      "temperature": 1
+  },
+  "recordingEnabled": true,
+  "firstMessage": "Hello, this is Mary from Mary's Dental. How can I assist you today?",
+  "voicemailMessage": "You've reached Mary's Dental voicemail. Please leave a message after the beep, and we'll get back to you as soon as possible.",
+  "endCallMessage": "Thank you for contacting Mary's Dental. Have a great day!",
+  "transcriber": {
+      "model": "nova-2-drivethru",
+      "language": "en",
+      "provider": "deepgram"
+  },
+  "clientMessages": [
+      "transcript",
+      "hang",
+      "function-call",
+      "speech-update",
+      "metadata",
+      "conversation-update"
+  ],
+  "serverMessages": [
+      "end-of-call-report",
+      "status-update",
+      "hang",
+      "function-call"
+  ],
+  "endCallPhrases": [
+      "goodbye",
+      "talk to you soon"
+  ]
+}
+// get voicelist
+// NOT DONE
+// https://api.npoint.io/7624502fadd0ba6b50a0
+// getCallLogs
+// NOT DONE
+// https://api.npoint.io/04f3ac96380458762177
+// get phoneNumber List
+// NOT DONE
+//  https://api.npoint.io/982f783ca1958782f8d0
+// uploadDoc
+// NOT DONE .........DONE
+// https://api.npoint.io/d4e574399225bd15be85
+{
+  "object": "file",
+  "bucket": "files",
+  "id": "7f979528-c2b6-4d56-b4db-96118914639d",
+  "name": "abcd.docx",
+  "orgId": "0c8012fa-d039-4107-a20d-7b59e2a43665",
+  "url": "https://auth.vapi.ai/storage/v1/object/public/files/1716349008835-e596b9b5-b712-4453-a355-d474b8dc3944.docx",
+  "bytes": "1366949",
+  "purpose": "assistant",
+  "createdAt": "2024-05-22T03:36:50.663Z",
+  "updatedAt": "2024-05-22T03:36:51.895Z",
+  "mimetype": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "path": "1716349008835-e596b9b5-b712-4453-a355-d474b8dc3944.docx",
+  "status": "indexed"
+}
+// deletedoc
+// NOT DONE............DONE
+// https://api.npoint.io/46b28399461f7467ecb2
+// getalldoclist
+// NOT DONE...............DONE
+// https://api.npoint.io/b50879550ade6ae8ac0e

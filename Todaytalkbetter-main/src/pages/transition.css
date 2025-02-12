@@ -1,0 +1,18 @@
+/* Add this to your CSS file */
+.sidebar-transition-enter {
+    transition: width 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  }
+  
+  .sidebar-transition-enter-active {
+    width: 16rem; /* width when sidebar is open */
+    opacity: 1;
+  }
+  
+  .sidebar-transition-exit {
+    transition: width 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  }
+  
+  .sidebar-transition-exit-active {
+    width: 4.5rem; /* width when sidebar is closed */
+    opacity: 0;
+  }

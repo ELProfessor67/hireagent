@@ -1,0 +1,44 @@
+.react-tag-input__input {
+    width: auto;
+    flex-grow: 1;
+    height: 1.875em;
+    padding: 0 0 0 .1875em;
+    margin: 0 .1875em;
+    font-size: 1em;
+    line-height: 1;
+    background: gray;
+    color: #333;
+    border: none;
+    border-radius: 3px;
+    outline: 0;
+    box-shadow: none;
+}
+.loader {
+    font-size: 20px;
+    text-align: center;
+    position: relative;
+    color: #000; /* Adjust color as needed */
+  }
+  
+  .loader::after {
+    content: "";
+    box-sizing: border-box;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 74px;
+    height: 74px;
+    margin-top: -12px;
+    margin-left: -20px;
+    border-radius: 50%;
+    border: 2px solid blue; /* Adjust color as needed */
+    border-top-color: transparent;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
