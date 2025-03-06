@@ -1,6 +1,36 @@
-import React from 'react'
+import axios from 'axios';
+import React, { useEffect, useState } from 'react'
+import { BACKEND_BASE_URL } from '../constant/URL';
 
 const Profile = ({open}) => {
+  const [user, setUser] = useState(null);
+
+
+  const fetchUser = async () => {
+    try {
+
+      const token = localStorage.getItem("Token");
+      if (!token) {
+        console.error("No token found");
+        return;
+      }
+
+      const res = await axios.get(`${BACKEND_BASE_URL}/api/users/load-me`,
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      )
+
+      setUser(res.data);
+    } catch (error) {
+      console.log("error ", error.message);
+    }
+  }
+  useEffect(() => {
+    fetchUser();
+  },[])
   return (
     <div
       className={`${
@@ -21,6 +51,8 @@ const Profile = ({open}) => {
             </div>
             <div className="bg-[#131416] p-6 rounded-lg shadow-md">
               <h2 className="text-xl font-semibold mb-2">Settings</h2>
+              <h2 className="text-xl font-semibold mb-2">Credits: {user?.credits}$ left</h2>
+
               <p className="text-zinc-400 mb-4">Customize your account details.</p>
               <form>
                 <div className="mb-4">

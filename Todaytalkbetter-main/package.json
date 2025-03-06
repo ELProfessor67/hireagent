@@ -13,16 +13,20 @@
     "@pathofdev/react-tag-input": "^1.0.7",
     "@react-oauth/google": "^0.12.1",
     "axios": "^1.7.2",
+    "clsx": "^2.1.1",
+    "lodash": "^4.17.21",
     "react": "^18.2.0",
     "react-datepicker": "^6.9.0",
     "react-dom": "^18.2.0",
     "react-icons": "^5.2.1",
+    "react-rating": "^2.0.5",
     "react-router-dom": "^6.23.1",
     "react-select": "^5.8.0",
     "react-tag-input": "^6.10.2",
     "react-toastify": "^10.0.5",
     "socket.io-client": "^4.7.5",
-    "tailwind-scrollbar": "^3.1.0"
+    "tailwind-scrollbar": "^3.1.0",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.66",

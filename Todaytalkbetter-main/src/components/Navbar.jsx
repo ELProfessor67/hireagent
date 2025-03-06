@@ -26,14 +26,17 @@ import Squads from "./Squads";
 import Provider from "./ProviderApi";
 import Members from "../pages/Members";
 import Settings from "../pages/Settings";
-import {BACKEND_BASE_URL} from '../constant/URL'
+import { BACKEND_BASE_URL } from '../constant/URL'
+import { FaBullseye, FaBuyNLarge } from "react-icons/fa";
+import BuyAssistant from "./BuyAssistant";
 
 
 const Sidebar = ({ openfun }) => {
   const [response, setResponse] = useState("");
   const [userName, setUserName] = useState("");
   const [email, setEmail] = useState("");
-  const[assistants,setAssistants]= useState()
+  const [role, setRole] = useState("");
+  const [assistants, setAssistants] = useState()
   const [open, setOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
@@ -48,6 +51,7 @@ const Sidebar = ({ openfun }) => {
       setEmail(userDetails.email);
       setResponse(userDetails.name);
       setUserName(userDetails.name.slice(0, 1).toUpperCase());
+      setRole(userDetails.role)
     }
   });
 
@@ -107,61 +111,62 @@ const Sidebar = ({ openfun }) => {
     hideSidebarPaths.includes(location.pathname) ||
     hideSidebarRegex.test(location.pathname);
 
-    useEffect(() => {
-      const fetchAssistants = async () => {
-        const token = localStorage.getItem("Token");
-        if (!token) {
-          console.error("No token found");
-          return;
-        }
-  
-        try {
-          const response = await axios.get(
-            `${BACKEND_BASE_URL}/api/configs/findAllAssistants`,
-            {
-              headers: {
-                Authorization: ` ${token}`,
-              },
-            }
-          );
-          setAssistants(response.data.data);
-          // console.log(response.data.data)
-         
-        } catch (error) {
-          console.error("Error fetching assistants", error);
-         
-        }
-      };
-  
-      fetchAssistants();
-    }, []);
- 
+  useEffect(() => {
+    const fetchAssistants = async () => {
+      const token = localStorage.getItem("Token");
+      if (!token) {
+        console.error("No token found");
+        return;
+      }
+
+      try {
+        const response = await axios.get(
+          `${BACKEND_BASE_URL}/api/configs/findAllAssistants`,
+          {
+            headers: {
+              Authorization: ` ${token}`,
+            },
+          }
+        );
+        setAssistants(response.data.data);
+        // console.log(response.data.data)
+
+      } catch (error) {
+        console.error("Error fetching assistants", error);
+
+      }
+    };
+
+    fetchAssistants();
+  }, []);
+
   return (
     <div className="h-screen flex">
       {!shouldHideSidebar && (
         <div
-          className={`${
-            location.pathname === "/createassistant" && "absolute"
-          } fixed left-0 flex flex-col rounded w-full cursor-pointer`}
+          className={`${location.pathname === "/createassistant" && "absolute"
+            } fixed left-0 flex flex-col rounded w-full cursor-pointer`}
         >
           <div className="w-full py-3 lg:pl-10 flex justify-between items-center pl-2 flex-col sm:flex-row gap-5">
             <img src={TalkBetter} className="h-10 w-64" alt="TalkBetter" />
             <div className="flex gap-5 items-center pr-5 relative">
-           
-              <button
-                className="rounded-md p-3 bg-[#5D5FEF] text-white text-xs w-full"
-                onClick={() => navigate("/createassistant")}
-              >
-                Create Assistant
-              </button>
+              {
+                role == "seller" &&
+                <button
+                  className="rounded-md p-3 bg-[#5D5FEF] text-white text-xs w-full"
+                  onClick={() => navigate("/createassistant")}
+                >
+                  Create Assistant
+                </button>
+              }
+
               <button className="rounded-md text-xs p-3 bg-[#000000] text-white w-full">
                 + Add AI for help
               </button>
               <div className="  gap-5  flex">
                 <button
-                  className={`${
-                    response ? "rounded-full text-xs" : "rounded-md text-xs"
-                  } px-5 p-3 bg-[#5D5FEF] text-white`}
+                  className={`${response ? "rounded-full text-xs" : "rounded-md text-xs"
+                    } px-5 p-3 bg-[#5D5FEF] text-white`}
                   onClick={toggleDropdown}
                 >
                   {userName ? (
@@ -190,9 +195,8 @@ const Sidebar = ({ openfun }) => {
                 }}
               >
                 <div
-                  className={`flex gap-1 sm:gap-3 items-center hover:bg-[#383E5A] sm:p-2 p-1 rounded transition-all ${
-                    location.pathname === "/overview" ? "active-tab" : ""
-                  }`}
+                  className={`flex gap-1 sm:gap-3 items-center hover:bg-[#383E5A] sm:p-2 p-1 rounded transition-all ${location.pathname === "/overview" ? "active-tab" : ""
+                    }`}
                   onClick={() => navigate("/overview")}
                 >
                   <svg
@@ -207,9 +211,8 @@ const Sidebar = ({ openfun }) => {
                   <h1>Overview</h1>
                 </div>
                 <div
-                  className={`flex gap-1 sm:gap-3 items-center hover:bg-[#383E5A] sm:p-2 p-1 rounded transition-all ${
-                    location.pathname === "/" ? "active-tab" : ""
-                  }`}
+                  className={`flex gap-1 sm:gap-3 items-center hover:bg-[#383E5A] sm:p-2 p-1 rounded transition-all ${location.pathname === "/" ? "active-tab" : ""
+                    }`}
                   onClick={() => navigate("/")}
                 >
                   <img
@@ -220,9 +223,8 @@ const Sidebar = ({ openfun }) => {
                   <h1>Assistants</h1>
                 </div>
                 <div
-                  className={`flex gap-1 sm:gap-3 items-center hover:bg-[#383E5A] p-1 sm:p-2 rounded ${
-                    location.pathname === "/phone" ? "active-tab" : ""
-                  }`}
+                  className={`flex gap-1 sm:gap-3 items-center hover:bg-[#383E5A] p-1 sm:p-2 rounded ${location.pathname === "/phone" ? "active-tab" : ""
+                    }`}
                   onClick={() => navigate("/phone")}
                 >
                   <img
@@ -233,9 +235,16 @@ const Sidebar = ({ openfun }) => {
                   <h1>Phone Numbers</h1>
                 </div>
                 <div
-                  className={`flex gap-1 sm:gap-3 items-center hover:bg-[#383E5A] p-1 sm:p-2 rounded ${
-                    location.pathname === "/documents" ? "active-tab" : ""
-                  }`}
+                  className={`flex gap-1 sm:gap-3 items-center text-white hover:bg-[#383E5A] p-1 sm:p-2 rounded ${location.pathname === "/buy-assistant" ? "active-tab" : ""
+                    }`}
+                  onClick={() => navigate("/buy-assistant")}
+                >
+                   <FaBullseye size={30}/>
+                  <h1>Buy Assistant</h1>
+                </div>
+                <div
+                  className={`flex gap-1 sm:gap-3 items-center hover:bg-[#383E5A] p-1 sm:p-2 rounded ${location.pathname === "/documents" ? "active-tab" : ""
+                    }`}
                   onClick={() => navigate("/documents")}
                 >
                   <img
@@ -246,9 +255,8 @@ const Sidebar = ({ openfun }) => {
                   <h1>Documents</h1>
                 </div>
                 <div
-                  className={`flex gap-1 sm:gap-3 items-center hover:bg-[#383E5A] p-1 sm:p-2 rounded ${
-                    location.pathname === "/squads" ? "active-tab" : ""
-                  }`}
+                  className={`flex gap-1 sm:gap-3 items-center hover:bg-[#383E5A] p-1 sm:p-2 rounded ${location.pathname === "/squads" ? "active-tab" : ""
+                    }`}
                   onClick={() => navigate("/squads")}
                 >
                   <svg
@@ -263,9 +271,8 @@ const Sidebar = ({ openfun }) => {
                   <h1>Squads</h1>
                 </div>
                 <div
-                  className={`flex gap-1 sm:gap-3 items-center hover:bg-[#383E5A] p-1 sm:p-2 rounded ${
-                    location.pathname === "/voice" ? "active-tab" : ""
-                  }`}
+                  className={`flex gap-1 sm:gap-3 items-center hover:bg-[#383E5A] p-1 sm:p-2 rounded ${location.pathname === "/voice" ? "active-tab" : ""
+                    }`}
                   onClick={() => navigate("/voice")}
                 >
                   <img
@@ -276,9 +283,8 @@ const Sidebar = ({ openfun }) => {
                   <h1>Voice Library</h1>
                 </div>
                 <div
-                  className={`flex gap-1 sm:gap-3 items-center hover:bg-[#383E5A] p-1 sm:p-2 rounded ${
-                    location.pathname === "/call" ? "active-tab" : ""
-                  }`}
+                  className={`flex gap-1 sm:gap-3 items-center hover:bg-[#383E5A] p-1 sm:p-2 rounded ${location.pathname === "/call" ? "active-tab" : ""
+                    }`}
                   onClick={() => navigate("/call")}
                 >
                   <img
@@ -301,13 +307,12 @@ const Sidebar = ({ openfun }) => {
                   />
                   <h1>Provider APIs</h1>
                 </div> */}
-                
+
               </div>
-              
+
               <div
-                className={`flex gap-1 md:mt-32 md:ml-2 sm:gap-3 items-center hover:bg-[#383E5A] p-1 sm:p-2 rounded ${
-                  location.pathname === "/profile" ? "active-tab" : ""
-                }`}
+                className={`flex gap-1 md:mt-32 md:ml-2 sm:gap-3 items-center hover:bg-[#383E5A] p-1 sm:p-2 rounded ${location.pathname === "/profile" ? "active-tab" : ""
+                  }`}
                 onClick={() => navigate("/profile")}
               >
                 <svg
@@ -362,10 +367,10 @@ const Sidebar = ({ openfun }) => {
                         <li className="flex items-center hover:bg-zinc-700 p-2 rounded dark:hover:bg-zinc-700">
                           <span>Billing</span>
                         </li>
-                        <li onClick={() => navigate("/members") } className="flex items-center hover:bg-zinc-700 p-2 rounded dark:hover:bg-zinc-700">
+                        <li onClick={() => navigate("/members")} className="flex items-center hover:bg-zinc-700 p-2 rounded dark:hover:bg-zinc-700">
                           <span>Members</span>
                         </li>
-                        <li onClick={() => navigate("/settings") } className="flex items-center hover:bg-zinc-700 p-2 rounded dark:hover:bg-zinc-700">
+                        <li onClick={() => navigate("/settings")} className="flex items-center hover:bg-zinc-700 p-2 rounded dark:hover:bg-zinc-700">
                           <span>Settings</span>
                         </li>
                         <li onClick={() => navigate("/apikeys")} className="flex items-center hover:bg-zinc-700 p-2 rounded dark:hover:bg-zinc-700">
@@ -390,10 +395,9 @@ const Sidebar = ({ openfun }) => {
               <div className="flex fixed flex-col bg-black h-[84vh] w-[72px] justify-between items-center mx-2 rounded-3xl pt-8 py-5 lg:bottom-12 transition-all top-[5rem] lg:top-[4.8rem] xxs:top-[7rem] sm:top-[5rem]">
                 <div className="flex flex-col gap-4 items-center">
                   <div
-                  onClick={() => navigate("/overview")}
-                    className={`flex gap-1 sm:gap-3 items-center hover:bg-[#383E5A] p-2 rounded ${
-                      location.pathname === "/overview" ? "active-tab" : ""
-                    }`}
+                    onClick={() => navigate("/overview")}
+                    className={`flex gap-1 sm:gap-3 items-center hover:bg-[#383E5A] p-2 rounded ${location.pathname === "/overview" ? "active-tab" : ""
+                      }`}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -406,34 +410,37 @@ const Sidebar = ({ openfun }) => {
                     </svg>
                   </div>
                   <div
-                  onClick={() => navigate("/") }
-                    className={`flex gap-1 sm:gap-3 items-center hover:bg-[#383E5A] p-2 rounded ${
-                      location.pathname === "/" ? "active-tab" : ""
-                    }`}
+                    onClick={() => navigate("/")}
+                    className={`flex gap-1 sm:gap-3 items-center hover:bg-[#383E5A] p-2 rounded ${location.pathname === "/" ? "active-tab" : ""
+                      }`}
                   >
                     <img src={ApllePodCastLogo} alt="Assistants" />
                   </div>
                   <div
-                  onClick={() => navigate("/phone") }
-                    className={`flex gap-3 items-center hover:bg-[#383E5A] p-2 rounded ${
-                      location.pathname === "/phone" ? "active-tab" : ""
-                    }`}
+                    onClick={() => navigate("/phone")}
+                    className={`flex gap-3 items-center hover:bg-[#383E5A] p-2 rounded ${location.pathname === "/phone" ? "active-tab" : ""
+                      }`}
                   >
                     <img src={Phone1} alt="Phone Numbers" />
                   </div>
                   <div
-                  onClick={() => navigate('/documents') }
-                    className={`flex gap-3 items-center hover:bg-[#383E5A] p-2 rounded ${
-                      location.pathname === "/documents" ? "active-tab" : ""
-                    }`}
+                    onClick={() => navigate("/buy-assistant")}
+                    className={`flex gap-3 items-center text-white text-3xl hover:bg-[#383E5A] p-2 rounded ${location.pathname === "/buy-assistant" ? "active-tab" : ""
+                      }`}
+                  >
+                    <FaBullseye/>
+                  </div>
+                  <div
+                    onClick={() => navigate('/documents')}
+                    className={`flex gap-3 items-center hover:bg-[#383E5A] p-2 rounded ${location.pathname === "/documents" ? "active-tab" : ""
+                      }`}
                   >
                     <img src={File} alt="Documents" />
                   </div>
                   <div
-                  onClick={() => navigate('/squads') }
-                    className={`flex gap-3 items-center hover:bg-[#383E5A] p-2 rounded ${
-                      location.pathname === "/squads" ? "active-tab" : ""
-                    }`}
+                    onClick={() => navigate('/squads')}
+                    className={`flex gap-3 items-center hover:bg-[#383E5A] p-2 rounded ${location.pathname === "/squads" ? "active-tab" : ""
+                      }`}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -446,18 +453,16 @@ const Sidebar = ({ openfun }) => {
                     </svg>
                   </div>
                   <div
-                  onClick={() => navigate("/voice") }
-                    className={`flex gap-3 items-center hover:bg-[#383E5A] p-2 rounded ${
-                      location.pathname === "/voice" ? "active-tab" : ""
-                    }`}
+                    onClick={() => navigate("/voice")}
+                    className={`flex gap-3 items-center hover:bg-[#383E5A] p-2 rounded ${location.pathname === "/voice" ? "active-tab" : ""
+                      }`}
                   >
                     <img src={SpeakerHign} alt="Voice Library" />
                   </div>
                   <div
-                  onClick={() => navigate("/call") }
-                    className={`flex gap-3 items-center hover:bg-[#383E5A] p-2 rounded ${
-                      location.pathname === "/call" ? "active-tab" : ""
-                    }`}
+                    onClick={() => navigate("/call")}
+                    className={`flex gap-3 items-center hover:bg-[#383E5A] p-2 rounded ${location.pathname === "/call" ? "active-tab" : ""
+                      }`}
                   >
                     <img src={PhoneCall} alt="Call Logs" />
                   </div>
@@ -470,10 +475,9 @@ const Sidebar = ({ openfun }) => {
                   </div> */}
                 </div>
                 <div
-                onClick={() => navigate("/profile") }
-                  className={`flex md:mt-20 gap-3 items-center hover:bg-[#383E5A] p-2 rounded ${
-                    location.pathname === "/profile" ? "active-tab" : ""
-                  }`}
+                  onClick={() => navigate("/profile")}
+                  className={`flex md:mt-20 gap-3 items-center hover:bg-[#383E5A] p-2 rounded ${location.pathname === "/profile" ? "active-tab" : ""
+                    }`}
                 >
                   <svg
                     className="w-8 h-8 text-white"
@@ -536,10 +540,12 @@ const Sidebar = ({ openfun }) => {
           <Settings email={email} open={open} />
         ) : location.pathname === "/apikeys" ? (
           <Provider open={open} />
+        ) : location.pathname === "/buy-assistant" ? (
+          <BuyAssistant open={open} />
         ) :
-         (
-          ""
-        )}
+          (
+            ""
+          )}
       </div>
     </div>
   );

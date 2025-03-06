@@ -9,7 +9,7 @@ const Register = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    role: "user",
+    role: "buyer",
     status: true,
     password: "",
     projectId: "664ece853e17537b70918cde",
@@ -77,6 +77,10 @@ const Register = () => {
         </div>
 
         <form className="space-y-4" onSubmit={handleSubmit}>
+          <div className="w-full flex items-center gap-2">
+            <button className={`flex-1 py-2  rounded-md ${formData.role == "seller" ? "bg-[#6062F8]" : "bg-[#1F1B29]"}`} onClick={() => setFormData(prev => ({...prev,role: "seller"}))}>Seller</button>
+            <button className={`flex-1 py-2 bg-[#1F1B29] rounded-md ${formData.role == "buyer" ? "bg-[#6062F8]" : "bg-[#1F1B29]"}`} onClick={() => setFormData(prev => ({...prev,role: "buyer"}))}>Buyer</button>
+          </div>
           <div>
             <label
               htmlFor="name"

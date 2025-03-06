@@ -5,13 +5,15 @@ import axios from "axios";
 import { io } from "socket.io-client";
 import { useNavigate, useParams } from "react-router-dom";
 import Chatbot from "./Chatbot";
-import { FaRegCopy } from "react-icons/fa";
+import { FaPhone, FaRegCopy } from "react-icons/fa";
 import Select from "react-select";
 import ReactTagInput from "@pathofdev/react-tag-input";
 import "@pathofdev/react-tag-input/build/index.css";
 import { voiceData } from "../assets/data/playhtdata";
 import { BACKEND_BASE_URL, TWILLO_SERVER_URL } from '../constant/URL'
 import FunctionConfiguration from "../components/FunctionConfigration";
+import TwilloConfiguration from "../components/TwilloConfigration";
+import CallDialoag from "../components/CallDialoag";
 
 const ConfigurationDummy = ({ open, isdummyfunc }) => {
   const [apikey, setApiKey] = useState("");
@@ -24,12 +26,34 @@ const ConfigurationDummy = ({ open, isdummyfunc }) => {
   const [endCall, setEndCall] = useState(true);
   const [selectedModel, setSelectedModel] = useState("");
 
+
+
   const recognitionRef = useRef(null);
   const socket = useRef(null);
   const audioContextRef = useRef(null);
   const audioBufferQueue = useRef([]);
   const isPlayingRef = useRef(false);
   const sourceNodeRef = useRef(null);
+
+  const [placeholders, setPlaceholders] = useState([{ key: "", value: "" }]);
+
+
+  const addPlaceholder = () => {
+    setPlaceholders([...placeholders, { key: "", value: "" }]);
+  };
+
+
+  const updatePlaceholder = (index, field, value) => {
+    const updatedPlaceholders = [...placeholders];
+    updatedPlaceholders[index][field] = value;
+    setPlaceholders(updatedPlaceholders);
+  };
+
+
+  const removePlaceholder = (index) => {
+    setPlaceholders(placeholders.filter((_, i) => i !== index));
+  };
+
 
   useEffect(() => {
     socket.current = io("https://voicebots.trainright.fit", {
@@ -212,8 +236,13 @@ const ConfigurationDummy = ({ open, isdummyfunc }) => {
   const [isCopied, setIsCopied] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [dataPrompt, setDataPrompt] = useState("");
-  const [functions, setFunctions]= useState([]);
- 
+  const [functions, setFunctions] = useState([]);
+  const [twilioNumber, setTwilioNumber] = useState("");
+  const [assistantType, setAssistantType] = useState("service");
+  const [isPublish, setIsPublish] = useState(false);
+  const [openCall, setOpenCall] = useState(false);
+  const [assistant, setAssistant] = useState(null);
+
   const chatRef = useRef();
   const handleButtonClick = (contentId) => {
     setActiveContent(contentId);
@@ -257,6 +286,35 @@ const ConfigurationDummy = ({ open, isdummyfunc }) => {
     setFillers(newTags);
   };
   const [loading, setLoading] = useState(false);
+
+  const handlePublish = async (value) => {
+    setIsPublish(value);
+    try {
+      const token = localStorage.getItem("Token");
+      if (!token) {
+        console.error("No token found");
+        return;
+      }
+
+      const apiEndpoint =
+        `${BACKEND_BASE_URL}/api/configs/update-status`;
+      const requestBody = {
+        value: value,
+        id: idx.id,
+      };
+
+      // First API call
+      const response = await axios.post(apiEndpoint, requestBody, {
+        headers: {
+          Authorization: token,
+        },
+      });
+      console.log("Assistant updated successfully:", response.data);
+    } catch (error) {
+      console.error("Error creating/updating assistant:", error.message);
+    }
+  }
+
   const handlePost = async () => {
     setLoading(true);
     try {
@@ -272,8 +330,10 @@ const ConfigurationDummy = ({ open, isdummyfunc }) => {
         name: name,
         instructions: systemPrompt,
         configId: configid,
-        // twilioNumber: "+12403292690",
+        twilioNumber: twilioNumber || undefined,
         id: idx.id,
+        firstFiller: firstFillers,
+        placeholders
       };
 
       // First API call
@@ -306,7 +366,7 @@ const ConfigurationDummy = ({ open, isdummyfunc }) => {
       console.log("Configuration updated successfully:", response1.data);
       setLoading(false);
       // Update local state after successful updates
-      setFirstFillers(response1.data.firstFiller);
+      // setFirstFillers(response1.data.firstFiller);
       setFillers(response1.data.fillers);
       setVoiceID(response1.data.voiceId);
       setAudioSpeed(response1.data.audioSpeed);
@@ -318,15 +378,17 @@ const ConfigurationDummy = ({ open, isdummyfunc }) => {
       console.error("Error creating/updating assistant:", error);
     }
   };
+
   const toggleVisibility = () => {
     setIsVisible(!isVisible);
   };
+
   function getconfigdata(data) {
     console.log([data]);
     let a = [data][0].filter((e) => e._id === configid);
     if (a.length > 0) {
       // console.log(a[0])
-      setFirstFillers(a[0].firstFiller);
+      // setFirstFillers(a[0].firstFiller);
       setFillers(a[0].fillers);
       setDataPrompt(a[0].informationNeeded);
       // setConfigIdd(a[0]._id)
@@ -340,6 +402,8 @@ const ConfigurationDummy = ({ open, isdummyfunc }) => {
       console.error("Config not found for configId:", configid);
     }
   }
+
+ 
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -357,6 +421,7 @@ const ConfigurationDummy = ({ open, isdummyfunc }) => {
           }
         );
         const data = response.data;
+        setAssistant(data.data);
         setApiKey(data.data.apiKey);
         console.log("configID", data.data.configId);
         localStorage.setItem("APIKEY", data.data.apiKey);
@@ -364,6 +429,12 @@ const ConfigurationDummy = ({ open, isdummyfunc }) => {
         setId(data.data.assistantId);
         setConfigId(data.data.configId);
         setSystemPrompt(data.data.instructions);
+        setTwilioNumber(data.data.twilioNumber);
+        setFirstFillers(data.data.firstFiller);
+        setPlaceholders(data.data.placeholders);
+        setAssistantType(data.data.type);
+        setIsPublish(data.data.isPublish);
+
         setFunctions(data.data.function)
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -372,6 +443,8 @@ const ConfigurationDummy = ({ open, isdummyfunc }) => {
 
     fetchData();
   }, []);
+
+
   useEffect(() => {
     const fetchConfigs = async () => {
       try {
@@ -418,14 +491,14 @@ const ConfigurationDummy = ({ open, isdummyfunc }) => {
           <div className="flex  flex- ml-4 justify-between items-center mb-4">
             <h1 className="text-2xl">{name}</h1>
             <div className="flex flex- items-center space-x-2">
-              <div className="bg-[#25263F] text-sm px-5 py-3 rounded-full flex  items-center space-x-1">
+              {/* <div className="bg-[#25263F] text-sm px-5 py-3 rounded-full flex  items-center space-x-1">
                 <span>{id}</span>
                 <FaRegCopy
                   onClick={handleCopy}
                   className={`cursor-pointer ${isCopied ? "text-green-500" : "text-white"
                     }`}
                 />
-              </div>
+              </div> */}
               <div className="flex flex- items-center space-x-4">
                 <div>
                   {show ? <Chatbot data={apikey} /> : ""}
@@ -448,7 +521,7 @@ const ConfigurationDummy = ({ open, isdummyfunc }) => {
                         </>
                       ) : (
                         <button
-                          onClick={handleSpeech}
+                           onClick={() => setOpenCall(true)}
                           className="bg-[#5D5FEF] text-white font-bold py-2 px-4 rounded inline-flex items-center"
                         >
                           Talk with {name}
@@ -628,11 +701,23 @@ const ConfigurationDummy = ({ open, isdummyfunc }) => {
                 className="bg-blue-500 px-4 py-2 rounded-lg"
                 onClick={handlePost}
               >
-                Publish
+                Save
               </button>
-              <select className="bg-zinc-800 px-4 py-2 rounded-lg flex items-center">
+              
+
+              {
+                assistantType != "purchased" &&
+                <button
+                  className="bg-blue-500 px-4 py-2 rounded-lg"
+                  onClick={() => handlePublish(!isPublish)}
+                >
+                  {!isPublish ? "Publish" : "Unpublish"}
+                </button>
+              }
+
+              {/* <select className="bg-zinc-800 px-4 py-2 rounded-lg flex items-center">
                 <option value="Web">Web</option>
-              </select>
+              </select> */}
             </div>
           </div>
           <div className="flex  md:flex-col w-40 space-y-2 p-4 bg-z text-white">
@@ -751,6 +836,17 @@ const ConfigurationDummy = ({ open, isdummyfunc }) => {
               </svg>
               Functions
             </button>
+
+            {
+              assistantType != "service" &&
+              <button className={`flex items-center border-2 border-blue-800 py-1 p-3 rounded-md gap-2 text-white ${activeContent === "content5" ? "bg-[#5D5FEF]" : "bg-[#131330]"
+                }`} onClick={() => handleButtonClick("content5")}>
+                <FaPhone />
+                Twillo
+              </button>
+            }
+
+
             <button className="flex items-center border-2 border-blue-800 bg-[#131330] py-1 p-3  rounded-md text-white">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -770,10 +866,10 @@ const ConfigurationDummy = ({ open, isdummyfunc }) => {
                 className="col-span-1 rounded-xl md:col-span-2 p-4 bg-zinc-70 -mr-3 "
                 style={{ backgroundColor: "#25263F" }}
               >
-                <h2 className="text-sm font-normal mb-2 ">
+                {/* <h2 className="text-sm font-normal mb-2 ">
                 Please use <span className="text-red-400">{TWILLO_SERVER_URL}/incoming-call</span> for incoming calls.
 
-                </h2>
+                </h2> */}
                 <h2 className="text-2xl font-normal mb-2 ">
                   Model{" "}
                   <span className="text-zinc-400 text-sm pl-3 mb-6">
@@ -792,7 +888,7 @@ const ConfigurationDummy = ({ open, isdummyfunc }) => {
                     onChange={(e) => setFirstFillers(e.target.value)}
                   />
                 </div>
-                <div className="mb-4">
+                {/* <div className="mb-4">
                   <label className="block text-sm font-medium mb-1">
                     interruption keywords
                   </label>
@@ -802,7 +898,7 @@ const ConfigurationDummy = ({ open, isdummyfunc }) => {
                     onChange={handleTagChange}
                     style={{ backgroundColor: "red" }}
                   />
-                </div>
+                </div> */}
                 <div>
                   <label className="block text-sm font-medium mb-1">
                     System Prompt
@@ -818,7 +914,8 @@ const ConfigurationDummy = ({ open, isdummyfunc }) => {
                 className="p-4  bg-zinc-700 "
                 style={{ backgroundColor: "#25263F" }}
               >
-                <div className="mb-4">
+
+                {/* <div className="mb-4">
                   <label className="block text-sm font-medium mb-1">
                     Provider
                   </label>
@@ -841,7 +938,9 @@ const ConfigurationDummy = ({ open, isdummyfunc }) => {
                     <option>GPT 4.0</option>
                     <option>Claude</option>
                   </select>
-                </div>
+                </div> */}
+
+
                 <div className="mb-4">
                   <label className="block text-sm font-medium mb-1">
                     Knowledge Base
@@ -850,7 +949,9 @@ const ConfigurationDummy = ({ open, isdummyfunc }) => {
                     <option>No Documents Added</option>
                   </select>
                 </div>
-                <div className="mb-4">
+
+
+                {/* <div className="mb-4">
                   <label className="block text-sm font-medium mb-1">
                     Temperature
                   </label>
@@ -889,7 +990,62 @@ const ConfigurationDummy = ({ open, isdummyfunc }) => {
                     value={dataPrompt}
                     placeholder="Example: You are english teacher and your job is to communicate other in English and point out their mistakes."
                   />
+                </div> */}
+
+                <div className="mb-4">
+                  <label className="block text-sm font-medium mb-1">
+                    Add Document
+                  </label>
+                  <input
+                    className="p-3 w-full bg-zinc-900 rounded resize-none text-white"
+                    type="file"
+                  />
+
+
                 </div>
+
+
+                <div className="mb-4">
+                  <label className="block text-sm font-medium mb-1">Placeholders</label>
+                  <div className="w-full p-2 bg-[#1F1B29] rounded text-white">
+                    {placeholders.length === 0 ? (
+                      <p className="text-gray-400">No Placeholders Added</p>
+                    ) : (
+                      placeholders.map((pair, index) => (
+                        <div key={index} className="flex gap-2 mb-2 items-center">
+                          <input
+                            type="text"
+                            placeholder="Placeholder Key (e.g., airline_name)"
+                            value={pair.key}
+                            onChange={(e) => updatePlaceholder(index, "key", e.target.value)}
+                            className="w-1/3 p-2 rounded bg-gray-700 text-white outline-none flex-1"
+                          />
+                          <input
+                            type="text"
+                            placeholder="Value (e.g., Emirates)"
+                            value={pair.value}
+                            onChange={(e) => updatePlaceholder(index, "value", e.target.value)}
+                            className="w-1/3 p-2 rounded bg-gray-700 text-white outline-none flex-1"
+                          />
+                          {/* ❌ Remove Button */}
+                          <button
+                            onClick={() => removePlaceholder(index)}
+                            className="text-sm bg-red-500 text-white h-5 w-5 rounded-full"
+                          >
+                            X
+                          </button>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                  <button
+                    onClick={addPlaceholder}
+                    className="mt-2 p-2 bg-blue-500 text-white rounded"
+                  >
+                    + Add Placeholder
+                  </button>
+                </div>
+
               </div>
             </div>
           )}
@@ -1105,8 +1261,14 @@ const ConfigurationDummy = ({ open, isdummyfunc }) => {
 
 
           {activeContent === "content4" && (
-            <FunctionConfiguration assistantId={idx.id} functions={functions}/>
+            <FunctionConfiguration assistantId={idx.id} functions={functions} />
           )}
+
+          {
+            activeContent === "content5" && (
+              <TwilloConfiguration twilioNumber={twilioNumber} setTwilioNumber={setTwilioNumber} handlePost={handlePost} />
+            )
+          }
 
 
 
@@ -1114,6 +1276,12 @@ const ConfigurationDummy = ({ open, isdummyfunc }) => {
 
         </div>
       </div>
+
+
+      {
+        openCall &&
+        <CallDialoag assistant={assistant} onClose={() => setOpenCall(false)} />
+      }
     </>
   );
 };

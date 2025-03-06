@@ -35,7 +35,8 @@ const UsersSchema = new Schema(
     profileImage: { type: String },
     parentId: { type: Schema.Types.ObjectId, ref: "users" },
     projectId: { type: Schema.Types.ObjectId, ref: "projects" },
-    selectedPlan: PlanDetailsSchema, // Embed plan details directly
+    selectedPlan: PlanDetailsSchema, // Embed plan details directly,
+    credits: { type: Number,default: 0},
   },
   { timestamps: true }
 );

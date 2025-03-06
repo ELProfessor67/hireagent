@@ -17,5 +17,6 @@ router
   // TODO Please check this code
   .get("/getUserDetails/:id", usersController.getUserDetails)
   .get("/plans", usersController.getPlans)
-  .post("/updateUserPlan", verifyToken, usersController.updateUserPlan);
+  .post("/updateUserPlan", verifyToken, usersController.updateUserPlan)
+  .get("/load-me",verifyToken, usersController.loadUser)
 export default router;

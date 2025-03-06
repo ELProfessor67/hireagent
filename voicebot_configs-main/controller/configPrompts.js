@@ -6,6 +6,9 @@ import mongoose from "mongoose";
 import crypto from "crypto";
 import Anthropic from '@anthropic-ai/sdk';
 import FunctionModal from '../models/function.js'
+import UserModel from "../models/UsersModel.js";
+
+
 
 const openai = new OpenAI();
 const anthropic = new Anthropic({
@@ -42,9 +45,9 @@ const getConfigs = async (req, res) => {
 
 const createAssistant = async (req, res) => {
     try {
-        const { name, instructions, configId, id, twilioNumber } = req.body;
+        const { name, instructions, configId, id, firstFiller, twilioNumber, description, language, placeholders, type, price } = req.body;
         if (!configId || !instructions || !configId || !name) {
-            return res.status(404).json({ message: "name, instructions, twilioNumber and configId are required" });
+            return res.status(404).json({ message: "name, instructions and configId are required" });
         }
 
         if (id) {
@@ -52,23 +55,23 @@ const createAssistant = async (req, res) => {
             if (!exists) {
                 return res.status(404).json({ message: "Assistant does't exist." });
             }
-            const myAssistant = await openai.beta.assistants.update(exists.assistantId, {
-                name,
-                instructions,
-                model: "gpt-4o-mini",
-            });
+            // const myAssistant = await openai.beta.assistants.update(exists.assistantId, {
+            //     name,
+            //     instructions,
+            //     model: "gpt-4o-mini",
+            // });
 
-            const data = await promptModel.findByIdAndUpdate({ _id: id, userId: req.userId }, { name, instructions, assistantId: myAssistant.id, configId, twilioNumber }, { new: true });
+            const data = await promptModel.findByIdAndUpdate({ _id: id, userId: req.userId }, { name, instructions, assistantId: "test", configId, firstFiller, twilioNumber, placeholders }, { new: true });
             return res.status(200).json({ data, message: "Data updated successfully." });
         }
-        const myAssistant = await openai.beta.assistants.create({
-            name,
-            instructions,
-            model: "gpt-4o-mini",
-        });
+        // const myAssistant = await openai.beta.assistants.create({
+        //     name,
+        //     instructions,
+        //     model: "gpt-4o-mini",
+        // });
 
         const apiKey = crypto.randomBytes(32).toString('hex');
-        const data = await promptModel.create({ name, instructions, assistantId: myAssistant.id, userId: req.userId, configId, twilioNumber, apiKey })
+        const data = await promptModel.create({ name, instructions, assistantId: "test", userId: req.userId, configId, apiKey, description, language, type, price })
         return res.status(200).json({ data, message: "Data created successfully." });
     } catch (error) {
         return res.status(500).json({ message: error.message });
@@ -84,11 +87,42 @@ const findAllAssistants = async (req, res) => {
     }
 }
 
+
+const findAllPublishAssistants = async (req, res) => {
+    try {
+        const page = req.query.page || 1;
+        const search = req.query.search || "";
+        const limit = 10;
+
+        const skip = limit * (page - 1);
+
+        const query = {
+            type: "service",
+            isPublish: true,
+            name: { $regex: search, $options: "i" }, // Case-insensitive search
+        };
+        const data = await promptModel.find(query).skip(skip).limit(limit);
+
+        const totalDocument = await promptModel.countDocuments(query);
+        const totalPage = Math.ceil(totalDocument / limit);
+        res.status(200).json({ data, message: "Data fetched successfully.", totalPage });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
 const findByNumber = async (req, res) => {
     try {
         const twilioNumber = req.params.twilioNumber;
-        const data = await promptModel.findOne({ twilioNumber}).populate("function");
-        res.status(200).json({ data });
+        const data = await promptModel.findOne({ twilioNumber }).populate("function");
+        const user = await UserModel.findById(data.userId);
+    
+        if(data.price > user.credits && data.type == "purchased"){
+            res.status(200).json({ creditsEnd: true, message: "No Credits Left to make a call." });
+            return
+        }
+
+        res.status(200).json({ data,creditsEnd: false });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -100,10 +134,121 @@ const findOneAssistantById = async (req, res) => {
         if (!id) {
             throw new Error("id is required");
         }
-        const data = await promptModel.findOne({ _id: id, userId: req.userId }).populate("function");
+        const data = await promptModel.findOne({ _id: id }).populate("function");
         res.status(200).json({ data, message: "Data fetched successfully." });
     } catch (error) {
         res.status(500).json({ message: error.message });
+    }
+}
+
+const findOneAssistantCallServerById = async (req, res) => {
+    try {
+        const { id } = req.query;
+        if (!id) {
+            throw new Error("id is required");
+        }
+        const data = await promptModel.findOne({ _id: id }).populate("function");
+        const user = await UserModel.findById(data.userId);
+
+        if(data.price > user.credits && data.type == "purchased"){
+            res.status(200).json({ creditsEnd: true, message: "No Credits Left to make a call." });
+        }
+
+        res.status(200).json({ data, message: "Data fetched successfully." });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+const cutCredits = async (req, res) => {
+    try {
+        const userId = req.body.user_id;
+        const assistantId = req.body.assistant_id;
+
+        const user = await UserModel.findById(userId);
+        const assistant = await promptModel.findById(assistantId);
+
+        const pricePerMin = assistant.price;
+        if(user.credits < pricePerMin){
+            res.status(401).json({creditsEnd: true,message: "No More credits Left"});
+        }
+
+        user.credits -= pricePerMin;
+        await user.save();
+        console.log("cut credits",user.credits)
+        
+
+        res.status(200).json({message: "Cut Successfully",creditsEnd: false });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+
+const publishAssistant = async (req, res) => {
+    try {
+        const { id, value } = req.body;
+        if (!id) {
+            throw new Error("id is required");
+        }
+
+        const data = await promptModel.findOne({ _id: id, userId: req.userId })
+        data.isPublish = value;
+        await data.save();
+
+        res.status(200).json({ data, message: "Status Changed Successfully" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+
+
+const buyAssistant = async (req, res) => {
+    try {
+        const userId = req.userId;
+        const { id } = req.body;
+        const serviceAssistant = await promptModel.findOne({ _id: id });
+
+        if (!serviceAssistant) {
+            return res.status(404).json({ message: "Assistant does't exist." });
+        }
+        const config = await configModel.create({
+            fillers: ["Great"],
+            voiceId:
+                "s3://voice-cloning-zero-shot/d9ff78ba-d016-47f6-b0ef-dd630f59414e/female-cs/manifest.json",
+            firstFiller: serviceAssistant.firstFiller,
+            audioSpeed: "0.9",
+            informationNeeded: "",
+            userId
+        });
+
+        const placeholders = serviceAssistant.placeholders.map(p => ({...p,value: ""}));
+        const apiKey = crypto.randomBytes(32).toString('hex');
+
+        
+
+        const purchasedAssistant = await promptModel.create({
+            name: serviceAssistant.name,
+            instructions: serviceAssistant.instructions,
+            userId,
+            configId: config._id,
+            apiKey,
+            language: serviceAssistant.language,
+            type: "purchased",
+            price: serviceAssistant.price,
+            soldBy: serviceAssistant.userId,
+            placeholders,
+            firstFiller: serviceAssistant.firstFiller
+        });
+
+
+        serviceAssistant.purchaseCount += 1;
+        await serviceAssistant.save();
+
+        return res.status(200).json({ data: purchasedAssistant, message: "Purchased Successfully" });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
     }
 }
 
@@ -257,8 +402,8 @@ const regenerateApiKey = async (req, res) => {
 
 const createFunctionConfigration = async (req, res) => {
     try {
-        const { assistantId,modelToolName, description, perameter, webhook } = req.body;
-        if (!assistantId || !modelToolName || !description || !perameter || !webhook ) {
+        const { assistantId, modelToolName, description, perameter, webhook } = req.body;
+        if (!assistantId || !modelToolName || !description || !perameter || !webhook) {
             return res.status(404).json({ message: "assistantId, modelToolName, description and perameter are required" });
         }
 
@@ -272,19 +417,19 @@ const createFunctionConfigration = async (req, res) => {
             },
             required: true
         }))
-        console.log(assistantId,modelToolName,description,dynamicParameters, webhook);
-        const data = await FunctionModal.create({assistant: assistantId,modelToolName,description,dynamicParameters,webhookURL: webhook})
+        console.log(assistantId, modelToolName, description, dynamicParameters, webhook);
+        const data = await FunctionModal.create({ assistant: assistantId, modelToolName, description, dynamicParameters, webhookURL: webhook })
         const assistantTable = await promptModel.findById(assistantId);
-        if(assistantTable){
+        if (assistantTable) {
             assistantTable.function.push(data._id);
             await assistantTable.save();
         }
 
-        return res.status(200).json({success: true, message: "Data created successfully.",data });
+        return res.status(200).json({ success: true, message: "Data created successfully.", data });
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }
 }
 
 
-export default {createFunctionConfigration, findByNumber,createAssistant, findAllAssistants, findOneAssistantById, createAndEditConfig, getConfigs, cloneAssistant, setDefaultAssistant, useApiKey, getAIModels, getVoiceModels, getVoiceIdsByVoiceModel, findAllAssistantsByApiKey, regenerateApiKey }
+export default { createFunctionConfigration, findByNumber, createAssistant, findAllAssistants, findOneAssistantById, createAndEditConfig, getConfigs, cloneAssistant, setDefaultAssistant, useApiKey, getAIModels, getVoiceModels, getVoiceIdsByVoiceModel, findAllAssistantsByApiKey, regenerateApiKey, publishAssistant, findAllPublishAssistants, buyAssistant , cutCredits, findOneAssistantCallServerById}

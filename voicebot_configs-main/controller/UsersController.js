@@ -92,7 +92,8 @@ const login = async (req, res) => {
       pincode: user.pincode, // added
       website: user.website, // added
       profileImage: user.profileImage,
-      phoneNumber: user.phoneNumber, //added
+      phoneNumber: user.phoneNumber, //added,
+      credits: user.credits,
     };
     return res.json({ authToken, profile });
   } catch (err) {
@@ -312,6 +313,20 @@ const updateUserPlan = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+const loadUser = async (req, res) => { 
+  try {
+    const id = req.userId;
+    const user = await users.findById(id);
+    res
+      .status(200)
+      .json(user);
+  } catch (error) {
+    console.error("Error updating user plan:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+
 
 export default {
   handleVerifyOTP,
@@ -326,4 +341,5 @@ export default {
   getUserDetails,
   getPlans,
   updateUserPlan,
+  loadUser
 };

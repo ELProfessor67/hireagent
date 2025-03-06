@@ -20,6 +20,7 @@ import BlankTemplatePopup from "./components/BlankPopUp";
 import ConfigurationDummy from "./pages/ConfigurationDummy";
 import { data } from "autoprefixer";
 import ChatbotModal from "./components/ChatbotModal";
+import Test from "./pages/Test";
 
 function App() {
   const [showAssis, setShowSis] = useState(false);
@@ -71,6 +72,7 @@ function App() {
           <Route path="/blankpopup" element={<BlankTemplatePopup />} />
           <Route path="/demo" element={<Demo />} />
           <Route path="/chatbots" element={<Chatbot />} />
+          <Route path="/test" element={<Test />} />
         </Routes>
       </BrowserRouter>
       <div>

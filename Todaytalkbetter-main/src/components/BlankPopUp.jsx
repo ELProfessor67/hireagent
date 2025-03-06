@@ -9,35 +9,29 @@ const BlankTemplatePopup = ({
   handleCreateAssistant,
 }) => {
   const [name, setName] = useState("");
-  const [number, setNumber] = useState("");
+  const [description, setDescription] = useState("");
+  const [language, setLanguage] = useState("english");
+  const [price, setPrice] = useState(0.1);
   const [validationError, setValidationError] = useState("");
-  const [nvalidationError, setNValidationError] = useState("");
+  const [descvalidationError, setDescValidationError] = useState("");
 
 
-  function validatePhoneNumber(phoneNumber) {
-    // Regular expression to validate phone number with country code (e.g., +1, +44, etc.)
-    const phoneRegex = /^\+(\d{1,4})\d{7,14}$/;
 
-    // Test the phone number against the regex
-    if (phoneRegex.test(phoneNumber)) {
-      return true
-    } else {
-      return  false
-    }
-  }
 
   const handleCreate = () => {
     if (name.trim() === "") {
       setValidationError("* Please enter a Botname");
       return;
     }
-    if(!validatePhoneNumber(number)){
-      setNValidationError("Invalid phone number. Ensure it starts with '+' followed by the country code and the number.")
-      return
+
+    if (description.trim() === "") {
+      setDescValidationError("* Please enter a description. *");
+      return;
     }
+
     setValidationError("");
-    setNValidationError("");
-    handleCreateAssistant(name,number);
+    setDescValidationError("");
+    handleCreateAssistant(name, description, language, price);
   };
 
   return (
@@ -49,15 +43,15 @@ const BlankTemplatePopup = ({
     >
       <div className="w-1/2 bg-black shadow-lg duration-200 sm:rounded-lg p-10 text-white">
         <div className="flex flex-col gap-2 mb-2">
-          <p>Voicebot Customization</p>
+          <p>Create Assistant</p>
           <p>
-            Let's customize your Voicebot! You can start by giving it a unique
+            Let's create Voicebot Assistant! You can start by giving it a unique
             name
           </p>
         </div>
         <div className="grid grid-cols-1 gap-6">
           <div className="flex flex-col gap-2">
-            <label htmlFor="name">Voicebot Name</label>
+            <label htmlFor="name">Assistant Name</label>
             <input
               type="text"
               id="name"
@@ -77,31 +71,74 @@ const BlankTemplatePopup = ({
           </div>
 
 
+
           <div className="flex flex-col gap-2">
-            <label htmlFor="name">Eunter Number</label>
-            <input
+            <label htmlFor="description">Description</label>
+            <textarea
               type="text"
-              id="name"
-              value={number}
-              onChange={(e) => setNumber(e.target.value)}
-              className="p-2 w-full border outline-none rounded-md placeholder:text-black text-black"
-              placeholder="Enter the Name"
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="p-2 w-full border outline-none rounded-md placeholder:text-black text-black h-[10rem]"
+              placeholder="Enter the Description"
             />
-            {nvalidationError && (
-              <p className="text-red-500 text-sm">{nvalidationError}</p>
+            {descvalidationError && (
+              <p className="text-red-500 text-sm">{descvalidationError}</p>
             )}
+            <p className="text-sm">
+              This is a basic AI assistant template with minimal configurations.
+              It's designed to serve as a starting point for creating your
+              custom voicebot.
+            </p>
           </div>
+
+          <div className="flex flex-col gap-2">
+            <label htmlFor="language">Language</label>
+            <select
+              id="language"
+              value={language}
+              onChange={(e) => setLanguage(e.target.value)}
+              className="p-2 w-full border outline-none rounded-md text-black"
+            >
+              <option value="">Select Language</option>
+              <option value="english">English</option>
+              <option value="hindi">Hindi</option>
+              <option value="spanish">Spanish</option>
+              <option value="french">French</option>
+            </select>
+          </div>
+
+
+
+          <div className="flex flex-col gap-2">
+            <label htmlFor="name">Price Per Minutes</label>
+            <input
+              type="number"
+              id="price"
+              step="0.01"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              className="p-2 w-full border outline-none rounded-md placeholder:text-black text-black"
+
+            />
+            <p className="text-sm">
+              Set the price per minute for using this AI assistant.
+              Users will be charged based on the duration of their interaction.
+            </p>
+          </div>
+
+
 
 
 
         </div>
         <div className="flex justify-end mt-4">
-          <button
+          <Link
             className="text-white bg-[#25263F] px-4 py-2 rounded-lg"
-            onClick={onClose}
+            to={'/'}
           >
             Cancel
-          </button>
+          </Link>
           <button
             className="bg-[#5D5FEF] text-white px-4 py-2 rounded-lg ml-2"
             onClick={handleCreate}
@@ -117,7 +154,7 @@ const BlankTemplatePopup = ({
 const TemplateSelection = ({ open }) => {
   const [configs, setConfigs] = useState([]);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
-  const [showPopup, setShowPopup] = useState(false);
+  const [showPopup, setShowPopup] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -146,7 +183,7 @@ const TemplateSelection = ({ open }) => {
     fetchConfigs();
   }, []);
 
-  const handleCreateAssistant = async (name,number) => {
+  const handleCreateAssistant = async (name, description, language, price) => {
     const token = localStorage.getItem("Token");
     if (!token) {
       console.error("No token found");
@@ -176,9 +213,12 @@ const TemplateSelection = ({ open }) => {
           `${BACKEND_BASE_URL}/api/configs/createAssistant`,
           {
             name: name,
-            instructions: "Hello I am blank assistant",
+            instructions: "You are good assisant.",
             configId: responseConfig.data.data._id,
-            twilioNumber: number,
+            description,
+            language,
+            type: "service",
+            price
           },
           {
             headers: {
@@ -236,9 +276,9 @@ const TemplateSelection = ({ open }) => {
     <>
       <div
         className={`${open
-            ? "lg:w-[65%] lg:left-[30%] left-[10rem] w-[60%] sm:left-[15rem] md:w-[70%] sm:w-[62%] xl:w-[82%] xl:left-[18%] xm:w-[68%]"
-            : "lg:w-[90%] lg:left-[10%] w-[70%] left-[25%]"
-          } absolute lg:top-[4.6rem] xl:top-[5rem] h-[85vh] rounded-3xl text-white w-64 top-[6.9rem] sm:top-[4.9rem]`}
+          ? "lg:w-[65%] lg:left-[30%] left-[10rem] w-[60%] sm:left-[15rem] md:w-[70%] sm:w-[62%] xl:w-[82%] xl:left-[18%] xm:w-[68%]"
+          : "lg:w-[90%] lg:left-[10%] w-[70%] left-[25%]"
+          } absolute lg:top-[4.6rem] xl:top-[5rem] h-[85vh] rounded-3xl text-white w-64 top-[6.9rem] sm:top-[4.9rem] hidden`}
       >
         <div className="max-w-4xl h-full overflow-y-scroll scrollbar-thin scrollbar-thumb-gray-100 scrollbar-track-gray-400 rounded-xl pt-9 pl-9 pr-9 pb-9 bg-black mx-auto md:ml-60 md:mr-72">
           <h1 className="text-2xl text-center font-semibold mb-6">
