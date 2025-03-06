@@ -6,6 +6,7 @@ import { audioContext, base64ToArrayBuffer } from '../utils/utils';
 import { AudioStreamer } from '../services/audioStreamer';
 import VolMeterWorket from '../services/workers/volMeter';
 import AudioPulse from './AudioPulse';
+import { TWILLO_SERVER_URL } from '../constant/URL';
 
 const CallDialoag = ({ assistant,onClose }) => {
     const [isStreaming, setIsStreaming] = useState(false);
@@ -44,7 +45,7 @@ const CallDialoag = ({ assistant,onClose }) => {
     const startCall = async () => {
         sessionIdRef.current = uuidv4()
         try {
-            const response = await fetch("http://localhost:5002/incoming-call-web", {
+            const response = await fetch(`${TWILLO_SERVER_URL}/incoming-call-web`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/x-www-form-urlencoded",
