@@ -254,18 +254,19 @@ async def incoming_call(request: Request):
     # Respond with TwiML to connect to /media-stream
     host = PUBLIC_URL
     stream_url = f"{host.replace('https', 'wss')}/media-stream"
-    
+
     twiml_response = f"""<?xml version="1.0" encoding="UTF-8"?>
         <Response>
             <Connect>
                 <Stream url="{stream_url}">
-                    <Parameter name="firstMessage" value="{first_message}" />
+                    <Parameter name="firstMessage" value="Wait Call Connecting..." />
                     <Parameter name="callerNumber" value="{caller_number}" />
                     <Parameter name="callSid" value="{session_id}" />
                 </Stream>
             </Connect>
         </Response>"""
     
+    print(twiml_response)
     return Response(content=twiml_response, media_type="text/xml")
 
 
@@ -275,6 +276,7 @@ async def incoming_call(request: Request):
 #handle call
 @app.websocket("/media-stream")
 async def media_stream(websocket: WebSocket):
+    
     """
         Handles the Twilio <Stream> WebSocket and connects to Ultravox via WebSocket.
         Includes transcoding audio between Twilio's G.711 µ-law and Ultravox's s16 PCM.
