@@ -29,6 +29,7 @@ import Settings from "../pages/Settings";
 import { BACKEND_BASE_URL } from '../constant/URL'
 import { FaBullseye, FaBuyNLarge } from "react-icons/fa";
 import BuyAssistant from "./BuyAssistant";
+import { MdQueryBuilder } from "react-icons/md";
 
 
 const Sidebar = ({ openfun }) => {
@@ -239,9 +240,21 @@ const Sidebar = ({ openfun }) => {
                     }`}
                   onClick={() => navigate("/buy-assistant")}
                 >
-                   <FaBullseye size={30}/>
+                  <FaBullseye size={30} />
                   <h1>Buy Assistant</h1>
                 </div>
+
+                <a
+                  className={`flex gap-1 sm:gap-3 items-center text-white hover:bg-[#383E5A] p-1 sm:p-2 rounded ${location.pathname === "/workflow" ? "active-tab" : ""
+                    }`}
+                  href="https://workflow.myrealmarket.com/"
+                >
+
+                  <MdQueryBuilder size={30} />
+                  <h1>Workflows</h1>
+                </a>
+
+
                 <div
                   className={`flex gap-1 sm:gap-3 items-center hover:bg-[#383E5A] p-1 sm:p-2 rounded ${location.pathname === "/documents" ? "active-tab" : ""
                     }`}
@@ -428,8 +441,17 @@ const Sidebar = ({ openfun }) => {
                     className={`flex gap-3 items-center text-white text-3xl hover:bg-[#383E5A] p-2 rounded ${location.pathname === "/buy-assistant" ? "active-tab" : ""
                       }`}
                   >
-                    <FaBullseye/>
+                    <FaBullseye />
                   </div>
+
+                  <a
+                    className={`flex gap-1 sm:gap-3 items-center text-white hover:bg-[#383E5A] p-1 sm:p-2 rounded ${location.pathname === "/workflow" ? "active-tab" : ""
+                      }`}
+                    href="https://workflow.myrealmarket.com/"
+                  >
+
+                    <MdQueryBuilder size={30} />
+                  </a>
                   <div
                     onClick={() => navigate('/documents')}
                     className={`flex gap-3 items-center hover:bg-[#383E5A] p-2 rounded ${location.pathname === "/documents" ? "active-tab" : ""
